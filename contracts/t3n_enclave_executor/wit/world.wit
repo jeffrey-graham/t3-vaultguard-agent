@@ -1,0 +1,28 @@
+package z:tenant-vaultguard@0.4.2;
+
+world tenant-vaultguard {
+  import host:tenant/tenant-context@1.2.0;
+  import host:interfaces/logging@2.2.0;
+  import host:interfaces/kv-store@2.2.0;
+  import host:interfaces/http@2.2.0;
+  import host:interfaces/http-with-placeholders@2.2.0;
+
+  export contracts;
+}
+
+interface contracts {
+  // Uniform 3-field envelope used by every node-callable T3N TEE contract.
+  //   input        — JSON arguments for this function, as bytes
+  //   user-profile — None for tenant contracts (profile is resolved host-side)
+  //   context      — node-minted DynamicContext (trusted), as bytes
+  record generic-input {
+    input:        option<list<u8>>,
+    user-profile: option<list<u8>>,
+    context:      option<list<u8>>,
+  }
+
+  // Exported TEE contract entry points:
+  execute-with-placeholders: func(req: generic-input) -> result<list<u8>, string>;
+  verify-smart-vc:           func(req: generic-input) -> result<list<u8>, string>;
+  manage-agent-tool:         func(req: generic-input) -> result<list<u8>, string>;
+}

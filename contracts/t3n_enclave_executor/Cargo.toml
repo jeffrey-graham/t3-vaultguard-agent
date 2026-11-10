@@ -1,0 +1,11 @@
+[package]
+name = "z-tenant-vaultguard"
+version = "0.4.2"
+edition = "2021"
+description = "Terminal 3 (T3N) WASM TEE Enclave Contract for Zero-Leak Placeholder Resolution, Scoped Member Delegation, Outbound Host Firewall, and Merkle Audit Logging"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T3-VaultGuard · Confidential AI Agent Execution &amp; TEE Enclave Firewall on Terminal 3 (T3N)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">T3V</div>
+      <div class="brand-title">
+        <h1>
+          T3-VaultGuard
+          <span class="pill emerald">wasm32-wasip2 TEE Attested</span>
+        </h1>
+        <p>Zero-Leak Confidential AI Agent Execution, Scoped Member Delegation &amp; Reusable Smart VC Firewall on Terminal 3 (T3N)</p>
+      </div>
+    </div>
+    <div class="telemetry-pills">
+      <span class="pill indigo">KEM: ML-KEM-768 (FIPS 203)</span>
+      <span class="pill emerald">Cipher: AES-256-GCM (12B Nonce)</span>
+      <span class="pill amber">Contract: z:t3n-org-99a1:vaultguard@0.4.2</span>
+      <span class="pill">Agent DID: did:t3n:agent-7f3a</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Top KPI Strip -->
+    <section class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">LLM Context PII Exposure</div>
+        <div class="kpi-val" id="kpi-pii-leaks">0 Bytes</div>
+        <div class="kpi-sub">100% Sealed Placeholders ({{user.*}})</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Threshold Wrapping Quorum</div>
+        <div class="kpi-val">3-of-5 TEE Nodes</div>
+        <div class="kpi-sub">ML-KEM-768 + HKDF (c2s / s2c)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Prompt-Injection Egress Blocks</div>
+        <div class="kpi-val" id="kpi-blocked-count">1 Blocked</div>
+        <div class="kpi-sub">Strict allowed_hosts Enforcement</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Merkle Activity Audit Root</div>
+        <div class="kpi-val" id="kpi-merkle-root">0x9f4c...8e21</div>
+        <div class="kpi-sub" id="kpi-audit-count">7 Verified Ledger Entries</div>
+      </div>
+    </section>
+
+    <!-- View Mode Switcher (for easy navigation & clean screenshots) -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-view="all" onclick="switchView('all')">All 4 Enterprise Panels</button>
+      <button class="tab-btn" data-view="vault" onclick="switchView('vault')">1. Private Data Vault &amp; ML-KEM Quorum</button>
+      <button class="tab-btn" data-view="sandbox" onclick="switchView('sandbox')">2. Zero-Leak Agent Sandbox &amp; Firewall</button>
+      <button class="tab-btn" data-view="vc" onclick="switchView('vc')">3. Smart VC &amp; Reusable KYC Verifier</button>
+      <button class="tab-btn" data-view="audit" onclick="switchView('audit')">4. Tamper-Proof Merkle Activity Log</button>
+    </nav>
+
+    <!-- PANEL 1 & PANEL 2 -->
+    <div class="grid-2" id="top-grid">
+      <!-- PANEL 1: Private Data Vault -->
+      <section class="panel" id="panel-vault">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">
+              1. Tenant Private Data Vault (<code>z:t3n-org-99a1:kv-secrets</code>)
+            </div>
+            <div class="panel-subtitle">
+              Encrypted at rest with AES-256-GCM; unwrapped strictly inside the T3N TEE Enclave during <code>http-with-placeholders</code> egress
+            </div>
+          </div>
+          <span class="pill emerald">Quorum Reconstructed: 3/5 Shares</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Sealed Placeholder</th>
+              <th>Owner DID</th>
+              <th>AES-256-GCM Ciphertext (12B IV + Tag)</th>
+              <th>Scoped Functions</th>
+            </tr>
+          </thead>
+          <tbody id="vault-table-body"></tbody>
+        </table>
+
+        <div class="quorum-nodes">
+          <div class="quorum-node"><strong>Node-01 (SG)</strong><br/><span class="mono" style="color:#6ee7b7">Share #1 ✓ Attested</span></div>
+          <div class="quorum-node"><strong>Node-02 (ZUG)</strong><br/><span class="mono" style="color:#6ee7b7">Share #2 ✓ Attested</span></div>
+          <div class="quorum-node"><strong>Node-03 (LON)</strong><br/><span class="mono" style="color:#6ee7b7">Share #3 ✓ Attested</span></div>
+          <div class="quorum-node"><strong>Node-04 (IAD)</strong><br/><span class="mono" style="color:#8ca0c4">Share #4 Standby</span></div>
+          <div class="quorum-node"><strong>Node-05 (TYO)</strong><br/><span class="mono" style="color:#8ca0c4">Share #5 Standby</span></div>
+        </div>
+
+        <div class="form-row">
+          <input id="new-ph-key" class="input" placeholder="Placeholder (e.g. {{user.ssn}})" value="{{user.visa_number}}" />
+          <input id="new-ph-val" class="input" placeholder="Plaintext Secret (sealed in browser)" value="SG-EP-99201844" />
+          <button class="btn primary" onclick="sealNewSecret()">Seal Secret (map-entry-set)</button>
+        </div>
+      </section>
+
+      <!-- PANEL 2: Zero-Leak Agentic Execution Sandbox -->
+      <section class="panel" id="panel-sandbox">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">
+              2. Zero-Leak Agentic Execution Sandbox (<code>http-with-placeholders</code>)
+            </div>
+            <div class="panel-subtitle">
+              AI Agent (<code>did:t3n:agent-7f3a</code>) plans with placeholders; T3N TEE Host checks <code>member_delegation</code> &amp; <code>allowed_hosts</code>
+            </div>
+          </div>
+          <span class="pill amber" id="sandbox-active-badge">Scenario: Executive Flight Booking</span>
+        </div>
+
+        <div class="scenario-bar">
+          <button class="btn primary" id="btn-scen-flight" onclick="runScenario('flight')">✈️ 1. Executive Flight Booking (api.duffel.com)</button>
+          <button class="btn" id="btn-scen-stripe" onclick="runScenario('stripe')">💳 2. Treasury Settlement (api.stripe.com)</button>
+          <button class="btn" id="btn-scen-kyc" onclick="runScenario('kyc')">🛡️ 3. Institutional KYC Check</button>
+          <button class="btn danger" id="btn-scen-attack" onclick="runScenario('attack')">🚨 4. Prompt Injection Exfil Attack</button>
+        </div>
+
+        <div class="grid-2" style="gap:12px;">
+          <div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-weight:600;">
+              LLM REASONING &amp; MCP TOOL CALL (ZERO PLAINTEXT PII)
+            </div>
+            <pre class="code-box" id="llm-context-box"></pre>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-weight:600;">
+              T3N WASM TEE ENCLAVE EXECUTION &amp; EGRESS FIREWALL
+            </div>
+            <pre class="code-box" id="tee-enclave-box"></pre>
+          </div>
+        </div>
+
+        <div id="sandbox-verdict-banner" class="status-banner ok"></div>
+      </section>
+    </div>
+
+    <!-- PANEL 3 & PANEL 4 -->
+    <div class="grid-2" id="bottom-grid">
+      <!-- PANEL 3: Smart VC & Reusable KYC Verifier -->
+      <section class="panel" id="panel-vc">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">
+              3. Smart VC &amp; Reusable KYC Verifier (Zero-Knowledge Selective Disclosure)
+            </div>
+            <div class="panel-subtitle">
+              Verifies W3C Verifiable Credentials issued by <code>did:key:terminal3</code> without exposing raw passport scans
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn primary" onclick="verifySmartVc(false)">Verify ZK Presentation</button>
+            <button class="btn danger" onclick="verifySmartVc(true)">Simulate Tampered Proof</button>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:12px;">
+          <div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-weight:600;">
+              W3C SMART VERIFIABLE CREDENTIAL (JSON-LD)
+            </div>
+            <pre class="code-box" id="vc-json-box"></pre>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--muted); margin-bottom:6px; font-weight:600;">
+              ENCLAVE SELECTIVE-DISCLOSURE VERDICT
+            </div>
+            <pre class="code-box" id="vc-verdict-box"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANEL 4: Tamper-Proof Merkle Activity Audit Log -->
+      <section class="panel" id="panel-audit">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">
+              4. Tamper-Proof Organization Activity Log (<code>client.getActivityLog()</code>)
+            </div>
+            <div class="panel-subtitle">
+              Hash-chained &amp; Merkle-committed TEE dispatches (<code>secret.read</code>, <code>policy.update</code>, <code>tool.install</code>, <code>tool.remove</code>)
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn" onclick="filterAudit('all')">All</button>
+            <button class="btn" onclick="filterAudit('secret.read')">secret.read</button>
+            <button class="btn" onclick="filterAudit('policy.update')">policy.update</button>
+            <button class="btn" onclick="filterAudit('tool.install')">tool.install</button>
+            <button class="btn" onclick="filterAudit('denied')">Denied</button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Seq</th>
+              <th>Actor DID</th>
+              <th>Contract / Function</th>
+              <th>Custom Event Label</th>
+              <th>Outcome</th>
+              <th>Merkle Proof</th>
+            </tr>
+          </thead>
+          <tbody id="audit-table-body"></tbody>
+        </table>
+
+        <div id="merkle-proof-drawer" class="status-banner ok" style="margin-top:12px;"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
